@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  sever_web:
+    image: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./:/var/www
+    networks:
+      - ms_document_network
+  server_php_fpm:
+    build: .
+    volumes:
+      - ./:/var/www
+    networks:
+      - ms_document_network
+  db_postgres_sql:
+    image: postgres:12
+    container_name: pgsql_ms_document
+    restart: always
+    tty: true
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=ms_document_db
+      - PGDATA=/var/lib/postgresql/data/db-files/
+    networks:
+      - ms_document_network
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  ms_document_network:
+    name: ms_document_network
+    driver: bridge
