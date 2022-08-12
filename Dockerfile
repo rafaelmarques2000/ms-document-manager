@@ -2,18 +2,22 @@ FROM php:8.1-fpm-alpine
 RUN apk update
 
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS openssl \
-    bash-doc bash-completion postgresql-dev zlib-dev php-phpdbg \
+    bash-doc bash-completion libpq-dev postgresql-dev zlib-dev php-phpdbg \
     libzip-dev libpng-dev jpegoptim optipng pngquant gifsicle nginx \
     libpng libpng-dev sqlite-dev sqlite mysql mysql-client git openssh
 
 RUN adduser -D -g 'www' www
 RUN docker-php-ext-install pdo \
     pdo_pgsql \
-    pdo_mysql \
+    pgsql \
     sockets \
+    pdo_mysql \
     gd \
     zip \
     pdo_sqlite
+
+RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql
+
 
 RUN pecl install pcov && docker-php-ext-enable pcov
 WORKDIR /var/www
